@@ -1,6 +1,6 @@
 dms2dd<-function(latlon){
 #
-# a function to convert degree minute and second (dms) to Decimal Degrees (dd)
+# a function to convert DMS to Decimal Degrees (DD)
 #
 # input: a vector or matrix/data.frame of class character
 # exampe of input data
@@ -34,3 +34,4 @@ dms2dd<-function(latlon){
 }
     return(dd)
 }
+
