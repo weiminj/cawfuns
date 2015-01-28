@@ -1,7 +1,7 @@
 nztm2wgs <-
 function(ce,cn){
 #
-# R Function to convert NZMG Easting and Northing co-ordinates to 
+# R Function to convert NZTM Easting and Northing co-ordinates to 
 # WGS84 latlon (in decimal degrees)
 #
 # original function in Matlab, Adapted from LINZ C algorithms by Ben Knight 2007
