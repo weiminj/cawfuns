@@ -1,0 +1,90 @@
+wgs2nztm <-
+function(lon,lat){
+
+# Constants, used to define the parameters for the International Ellipsoid
+# used for the NZGD2000 datum (and hence for NZTM) 
+#
+# translated to R by WeiminJ, based on matlabe function WGS2NZTM by BenK 2011
+
+
+if(length(lon)!=length(lat)) stop("Inputs must be the same size")
+ a      <- 6378137  
+ rf     <- 298.257222101 
+ 
+ cm     <- 173.0*pi/180   #in radians
+ lto    <- 0.0*pi/180  
+ sf     <- 0.9996  
+ fe     <- 1600000.0  
+ fn     <- 10000000.0 
+ utom   <- 1 
+ 
+# ellipsoid calcs
+ if (rf != 0.0){
+     f = 1.0/rf 
+ } else{
+     f = 0.0
+}
+e2 = 2.0*f - f*f
+ep2 = e2/( 1.0 - e2 ) 
+om = meridian_arc(lto,e2,a) 
+
+# convert to radians
+lat=lat*pi/180
+lon=lon*pi/180
+
+# main code  
+dlon  =  lon - cm 
+while ( dlon > pi ) dlon = dlon-2*pi    
+while (dlon < -pi ) dlon = dlon+2*pi    
+m = meridian_arc(lat,e2,a)
+slt = sin(lat)
+eslt = (1.0-e2*slt*slt)
+eta = a/sqrt(eslt)
+rho = eta * (1.0-e2)/ eslt
+psi = eta/rho
+
+rm(eslt, rho)
+
+clt = cos(lat)
+rm(lon, lat)
+
+wc = clt*dlon
+wc2 = wc*wc
+rm(wc)
+
+t = slt/clt
+#note commented out by bk to save memory, but slower!
+# t2 = t.*t 
+# t4 = t2.*t2 
+# t6 = t2.*t4 
+
+trm1 = (psi-t^2)/6.0
+
+trm2 = (((4.0*(1.0-6.0*t^2)*psi 
+              + (1.0+8.0*t^2))*psi 
+              - 2.0*t^2)*psi+t^4)/120.0
+
+trm3 = (61 - 479.0*t^2 + 179.0*t^4 - t^6)/5040.0
+
+gce = (sf*eta*dlon*clt)*(((trm3*wc2+trm2)*wc2+trm1)*wc2+1.0)
+rm( clt)
+ce = gce/utom+fe
+rm( gce, fe)
+
+trm1 = 1.0/2.0
+
+trm2 = ((4.0*psi+1)*psi-t^2)/24.0
+
+trm3 = ((((8.0*(11.0-24.0*t^2)*psi 
+            -28.0*(1.0-6.0*t^2))*psi 
+            +(1.0-32.0*t^2))*psi  
+            -2.0*t^2)*psi 
+            +t^4)/720.0
+
+trm4 = (1385.0-3111.0*t^2+543.0*t^4-t^6)/40320.0
+
+gcn = (eta*t)*((((trm4*wc2+trm3)*wc2+trm2)*wc2+trm1)*wc2)
+rm(trm1, trm2, trm3, trm4)
+cn = (gcn+m-om)*sf/utom+fn
+return(cbind(ce,cn))
+}
