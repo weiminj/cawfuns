@@ -88,3 +88,62 @@ rm(trm1, trm2, trm3, trm4)
 cn = (gcn+m-om)*sf/utom+fn
 return(cbind(ce,cn))
 }
+
+
+meridian_arc<-function(lt,e2,a) {   
+  # /.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+  # /.*                                                                         .*/
+  # /.*  meridian_arc                                                           .*/
+  # /.*                                                                         .*/
+  # /.*  Returns the length of meridional arc (Helmert formula)                 .*/
+  # /.*  Method based on Redfearn's formulation as expressed in GDA technical   .*/
+  # /.*  manual at http://www.anzlic.org.au/icsm/gdatm/index.html               .*/
+  # /.*                                                                         .*/
+  # /.*  Parameters are                                                         .*/
+  # /.*    projection                                                           .*/
+  # /.*    latitude (radians)                                                   .*/
+  # /.*                                                                         .*/
+  # /.*  Return value is the arc length in metres                               .*/
+  # /.*                                                                         .*/
+  # /.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/    
+  e4 = e2*e2 
+  e6 = e4*e2 
+  
+  A0 = 1 - (e2/4.0) - (3.0*e4/64.0) - (5.0*e6/256.0) 
+  A2 = (3.0/8.0) * (e2+e4/4.0+15.0*e6/128.0) 
+  A4 = (15.0/256.0) * (e4 + 3.0*e6/4.0) 
+  A6 = 35.0*e6/3072.0 
+  
+  out=a*(A0*lt-A2*sin(2*lt)+A4*sin(4*lt)-A6*sin(6*lt)) 
+  return(out)
+}
+foot_point_lat<-function(m,f,a){
+  #  /.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+  # /.*                                                                       .*/
+  # /.*   foot_point_lat                                                      .*/
+  # /.*                                                                       .*/
+  # /.*   Calculates the foot point latitude from the meridional arc          .*/
+  # /.*   Method based on Redfearn's formulation as expressed in GDA technical.*/
+  # /.*   manual at http://www.anzlic.org.au/icsm/gdatm/index.html            .*/
+  # /.*                                                                       .*/
+  # /.*   Takes parameters                                                    .*/
+  # /.*      tm definition (for scale factor)                                 .*/
+  # /.*      meridional arc (metres)                                          .*/
+  # /.*                                                                       .*/
+  # /.*   Returns the foot point latitude (radians)                           .*/                                                                        .*/
+  # /.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*/
+  
+  n  = f/(2.0-f) 
+  n2 = n*n 
+  n3 = n2*n 
+  n4 = n2*n2 
+  
+  g = a*(1.0-n)*(1.0-n2)*(1+9.0*n2/4.0+225.0*n4/64.0) 
+  sig = m/g 
+  
+  phio = sig + (3.0*n/2.0 - 27.0*n3/32.0)*sin(2.0*sig) 
+  + (21.0*n2/16.0 - 55.0*n4/32.0)*sin(4.0*sig) 
+  + (151.0*n3/96.0) * sin(6.0*sig)
+  + (1097.0*n4/512.0) * sin(8.0*sig)   
+  return(phio)
+}
